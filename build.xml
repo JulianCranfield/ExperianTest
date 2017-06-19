@@ -1,0 +1,69 @@
+<project name="DateTester" default="dist" basedir=".">
+  <description>
+    Build file to build and run the date tester
+  </description>
+  <!-- set global properties for this build -->
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="dist" location="dist"/>
+
+  <path id="classpath">
+	  <fileset dir="./thirdparty" includes="**/*.jar" />
+  </path>
+  
+  <path id="classpath.test">
+	  <fileset dir="./thirdparty" includes="**/*.jar" />
+	  <fileset dir="${build}" includes="**/*.jar" />
+  </path>
+
+  <target name="build" depends="clean, compile, test, dist">
+	  <echo>Running complete clean build...</echo>
+  </target>
+  
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+  </target>
+
+  <target name="compile" depends="init"
+        description="compile the source">
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}">
+		<classpath>
+			<path refid="classpath" />
+		</classpath>
+	</javac>
+  </target>
+
+  <target name="dist" depends="compile"
+        description="generate the distribution">
+    <!-- Create the distribution directory -->
+    <mkdir dir="${dist}/lib"/>
+
+    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+    <jar jarfile="${dist}/lib/DateTester.jar" basedir="${build}"/>
+  </target>
+
+  <target name="test" depends="compile">
+	  <echo>Running Junit Tests</echo>
+    <junit printsummary="on" haltonfailure="yes" fork="true">
+        <classpath>
+          <path refid="classpath"/>
+          <pathelement location="${build}"/>
+        </classpath>
+        <formatter type="brief" usefile="false" />
+        <batchtest>
+            <fileset dir="${src}" includes="**/*Test.java" />
+        </batchtest>
+    </junit>
+  </target>
+
+  <target name="clean"
+        description="clean up">
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+  </target>
+</project>
